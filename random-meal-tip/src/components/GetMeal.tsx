@@ -1,17 +1,41 @@
+import { useDispatch } from "react-redux";
+import { fetchActions } from "../features/randommeal";
 
 
 function GetMeal() {
 
-    const URL = 'https://www.themealdb.com/api/json/v1/1/random.php';
+    const dispatch = useDispatch();
 
-    fetch(URL)
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(err => console.error('Error fetching data: ', err));
+    async function fetchMeal() {
+        dispatch(fetchActions.isfetching());
+
+        const URL = 'https://www.themealdb.com/api/json/v1/1/random.php';
+
+        try {
+            const response = await fetch(URL);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const json = await response.json();
+
+            const randomMeal = json.meals[0].strMeal;
+            console.log(randomMeal);
+
+            dispatch(fetchActions.success(randomMeal));
+
+        } catch {
+            console.log('error');
+            dispatch(fetchActions.failure());
+        }
+
+    }
+
+
 
     return (
         <section>
-            <button>Get meal tip!</button>
+            <button onClick={() => fetchMeal()}>Get meal tip!</button>
         </section>
     )
 }
